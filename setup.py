@@ -1,9 +1,10 @@
-from setuptools import setup
+import setuptools
 
-setup(
+
+setuptools.setup(
     name='pdf2images',
     version='1.0.0',
-    packages=[''],
+    packages=setuptools.find_packages(),
     url='',
     license='MIT',
     author='adnenbe',
