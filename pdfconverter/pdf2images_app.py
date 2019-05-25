@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import sys
 import json
 import logging
 
@@ -37,7 +38,12 @@ def main(pdf_file, out, loglevel):
 
     step1 = datetime.now()
 
-    pages = convert_from_path(pdf_file)
+    try:
+        pages = convert_from_path(pdf_file)
+    except Exception as e:
+        res = {"status": "convert_error", "error": str(e)}
+        print json.dumps(res)
+        exit(0)
 
     step2 = datetime.now()
     tt = (step2 - step1).seconds + float((step2 - step1).microseconds) / 1000000
@@ -47,9 +53,14 @@ def main(pdf_file, out, loglevel):
     logger.debug("Start converting image resolution ...")
     i = 0
     for page in pages:
-        im_resize = page.resize(size, Image.ANTIALIAS)
-        im_resize.save(out + os.path.basename(pdf_file) + '-resize-' + str(i) + '.jpg', 'JPEG')
-        i = i + 1
+        try:
+            im_resize = page.resize(size, Image.ANTIALIAS)
+            im_resize.save(out + os.path.basename(pdf_file) + '-resize-' + str(i) + '.jpg', 'JPEG')
+            i = i + 1
+        except Exception as e:
+            res = {"status": "resize_error", "error": str(e)}
+            print json.dumps(res)
+            exit(0)
     end = datetime.now()
     tt = (end - step2).seconds + float((end - step2).microseconds) / 1000000
     logger.debug("saving with image resolution %s Time  = %f seconds" % (str(size), tt))
